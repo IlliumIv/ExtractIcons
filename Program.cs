@@ -10,9 +10,9 @@ namespace ExtractIcons
 
     class Program
     {
-        private static List<string> _atlasFiles = new List<string>();
+        private static readonly HashSet<string> _atlasFiles = new HashSet<string>();
         private static readonly Regex @catch = new Regex(@"""(.*?)"" ""(.*?)"" (\d*) (\d*) (\d*) (\d*)");
-        private static List<string> _texturesPaths = new List<string>();
+        private static readonly HashSet<string> _texturesPaths = new HashSet<string>();
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -35,10 +35,10 @@ namespace ExtractIcons
             {
                 if (arg.Length == 2)
                 {
-                    switch (ConvertStringToEnum(arg.Substring(1)))
+                    switch (ConvertStringToEnum(arg[1..]))
                     {
                         case Argument.s:
-                            string? path = args.Length > Array.IndexOf(args, arg) + 1 ? null : arg;
+                            var path = args.Length > Array.IndexOf(args, arg) + 1 ? null : arg;
                             if (path != null && File.Exists(path)) _atlasFiles.Add(path);
                             
                             break;
@@ -62,7 +62,7 @@ namespace ExtractIcons
             foreach (var _atlas in _atlasFiles)
             {
                 var atlasReader = new StreamReader(_atlas, encoding: System.Text.Encoding.Unicode);
-                var pathsToFiles = new List<FileInfo>();
+                var pathsToFiles = new HashSet<FileInfo>();
 
                 foreach (var filePath in _texturesPaths)
                 {
@@ -87,7 +87,7 @@ namespace ExtractIcons
             var match = matches.First();
 
             var textureName = new FileInfo(match.Groups[1].Value).Name;
-            var textureFile = new FileInfo(match.Groups[2].Value).Name;
+            // var textureFile = new FileInfo(match.Groups[2].Value).Name;
             var textureX = Int32.Parse(match.Groups[3].Value);
             var textureY = Int32.Parse(match.Groups[4].Value);
             var textureW = Int32.Parse(match.Groups[5].Value) - textureX;
